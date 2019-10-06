@@ -31,7 +31,7 @@ router.get('/:id',
 			if(err){
 				res.status(500);
 				res.json({success:false, message:err});
-			} else if(!user){
+			} else if(!group){
 				res.json({success:false, message:"group not found"});
 			} else{
 				res.json({success:true, data:group});

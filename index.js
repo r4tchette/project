@@ -5,6 +5,10 @@ var mongoose = require("mongoose");
 var bodyParser = require("body-parser");
 
 // Database
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useUnifiedTopology', true);
+mongoose.set('useCreateIndex', true);
+mongoose.set('useFindAndModify', true);
 mongoose.connect(process.env.MONGODB);
 var db = mongoose.connection;
 db.once("open", function(){
