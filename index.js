@@ -8,7 +8,7 @@ var bodyParser = require("body-parser");
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useUnifiedTopology', true);
 mongoose.set('useCreateIndex', true);
-mongoose.set('useFindAndModify', true);
+mongoose.set('useFindAndModify', false);
 mongoose.connect(process.env.MONGODB);
 var db = mongoose.connection;
 db.once("open", function(){
@@ -29,8 +29,9 @@ app.use(function (req, res, next) {
 });
 
 // API
-app.use("/api/users", require("./api/users"));
-app.use("/api/groups", require("./api/groups"));
+app.use('/api/users', require('./api/users'));
+app.use('/api/groups', require('./api/groups'));
+app.use('/api/posts', require('./api/posts'));
 
 // Port setting
 var port = 3000
