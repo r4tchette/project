@@ -31,7 +31,6 @@ router.post('/search',
 	}
 );
 
-
 // multer option
 var storage = multer.diskStorage({
 	destination: function(req, file, cb){
@@ -40,8 +39,8 @@ var storage = multer.diskStorage({
 	filename: function(req, file, cb){
 		var extension = path.extname(file.originalname);
 		var basename = path.basename(file.originalname, extension);
-		
-		cb(null, basename + extension);
+		cb(null, Date.now() + extension);	
+//		cb(null, basename + extension);
 	}
 });
 
@@ -49,18 +48,12 @@ var upload = multer({ storage: storage });
 
 // image upload
 router.post('/upload', upload.single('image'), function(req, res, next){
-//	var name = req.body.name;
-//	var ext = req.body.ext;
-//	var image = req.file;
 	var file = req.file;
-	var result = {
-		originalName: file.originalname,
-		size : file.size
-	}
-	if(!file){
+	//console.log(req.file);
+	if(!req.file){
 		return res.json({success:false, message:"file must be uploaded"});
 	} else{
-		return res.json({success:true, message:"upload success"});
+		return res.json({success:true, data:req.file});
 	}
 });
 
