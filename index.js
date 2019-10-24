@@ -34,7 +34,6 @@ app.use(function (req, res, next) {
 });
 
 
-
 // API
 app.use('/api/users', require('./api/users'));
 app.use('/api/groups', require('./api/groups'));

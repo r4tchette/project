@@ -3,6 +3,9 @@ var router = express.Router();
 var {PythonShell} = require('python-shell');
 var multer = require('multer');
 var path = require('path');
+var request = require('request');
+var FormData = require('form-data');
+var fs = require('fs');
 
 // python shell option
 var options = {
@@ -21,7 +24,7 @@ router.post('/search',
 		}
 //		console.log(options.args);
 		options.args = req.body.search;
-//		console.log(options.args);
+		console.log(options.args);
 		PythonShell.run('main.py', options, function(err, results){
 			if(err) throw err;
 			console.log("pyton shell is running successfully");
@@ -40,7 +43,6 @@ var storage = multer.diskStorage({
 		var extension = path.extname(file.originalname);
 		var basename = path.basename(file.originalname, extension);
 		cb(null, Date.now() + extension);	
-//		cb(null, basename + extension);
 	}
 });
 
@@ -56,5 +58,28 @@ router.post('/upload', upload.single('image'), function(req, res, next){
 		return res.json({success:true, data:req.file});
 	}
 });
+
+// integration with flask server for image classification
+// send post request via multipart/form-data
+router.post('/request', upload.single('image'),
+	function(req, res, next){
+		if(!req.file){
+			return res.json({success:false, message:"file is required"});
+		}
+		var formData = { image : fs.createReadStream(req.file.path) };
+		request.post({
+			url:'http://localhost:5000/predict',
+			formData: formData
+		}, function(error, response, body){
+			if(error){
+				res.json({success:false, message: error});
+				return console.error('upload failed: ', error);
+			}
+//			console.log(response);
+			var obj = JSON.parse(body);
+			return res.json({success:true, data: obj});
+		});
+	}
+);
 
 module.exports = router;

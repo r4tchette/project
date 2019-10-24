@@ -1,2 +1,4 @@
 node_modules
-py/uploads/
+py/uploads/*
+images/*
+*.swp

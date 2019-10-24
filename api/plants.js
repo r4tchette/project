@@ -4,6 +4,7 @@ var {check, validationResult} = require('express-validator');
 var User = require('../models/User');
 var Plant = require('../models/Plant');
 var mongoose = require('mongoose');
+var fs = require('fs');
 
 // Index
 router.get('/',
@@ -61,52 +62,94 @@ router.post('/search',
 // comment
 router.post('/comment',
 	function(req, res, next){
-		if(!req.body.name) return res.json({success:false, message:"plant name is required"});
-		if(!req.body.author) return res.json({success:false, message:"author name is required"});
+		if(!req.body.name || !req.body.author || !req.body.content)
+			return res.json({success:false, message:"name, author, content fields are required"});
 		User.findOne({id:req.body.author})
 		.exec(function(err, user){
 			if(err){
 				res.status(500);
-				res.json({success:false, message:err});
+				return res.json({success:false, message:err});
 			} else if(!user){
-				res.json({success:false, message:"user not found"});
-			}
-			else{
+				return res.json({success:false, message:(req.body.author + " : user not found")});
+			} else{
 				res.locals.author = user._id;
-				next();
 			}
-		})
-	}, function(req, res, next){
+		});
 		Plant.findOne({name:req.body.name})
 		.exec(function(err, plant){
 			if(err){
 				res.status(500);
-				res.json({success:false, message:err});
+				return res.json({success:false, message:err});
 			} else if(!plant){
-				res.json({success:false, message:"plant not found"});
-			} else{
-				next();
+				return res.json({success:false, message:(req.body.name + " : plant not found")});
 			}
 		});
-	}, function(req, res, next){
 		var newComment = {
-		//	'id': 0,
-			'user': res.locals.author,
+			'id': 0,
+			'author': res.locals.author,
 			'content': req.body.content,
-		//	'date': Date.now,
-		//	'like': 0
+			'date': Date.now(),
+			'like': 0
 		};
 		Plant.findOneAndUpdate({name:req.body.name}, {$push:{comments:newComment}})
 		.exec(function(err, plant){
 			if(err){
 				res.status(500);
-				res.json({success:false, message:err});
+				return res.json({succcess:false, message:err});
+			}
+		});
+		Plant.findOne({name:req.body.name})
+		.exec(function(err, plant){
+			if(err){
+				res.status(500);
+				return res.json({success:false, message:err});
 			} else{
-				res.json({success:true, message:plant});
+				return res.json({success:true, message:plant});
 			}
 		});
 	}
 );
+
+router.post('/image',
+	function(req, res){
+		var path = "./images/" + req.body.name + ".";
+		var ext = "png";
+
+		fs.readFile(path+ext, function(err, image){
+			if(err){
+				res.json({message:err});
+			}
+				//res.status(500);
+				//res.json({success:false, message:err});
+			else{
+				//res.json({success:true, data:image});
+				res.writeHead(500, {'Content_type': 'image/'+ext});
+				res.end(image);
+			}
+//			res.writeHead(200, {'Content-Type': 'image/png'});
+//			res.write(image);
+//			res.end();
+		});
+		fs.readFile(path+"jpg", function(err, image){
+			if(err){
+				res.status(500);
+				res.json({success:false, message:err});
+			} else{
+				res.writeHead(500, {'Content_type': 'image/jpg'});
+				res.end(image);
+			}
+		});
+});
+/*		fs.readFile(path, 'binary', function(err, image){
+			if(err){
+				res.status(500);
+				res.json({success:false, message:err});
+			} else{
+				res.json({success:true, data:image});
+			}
+		});
+	}
+	*/
 
 // export
 module.exports = router;
