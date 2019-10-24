@@ -82,15 +82,20 @@ router.post('/comment',
 				return res.json({success:false, message:err});
 			} else if(!plant){
 				return res.json({success:false, message:(req.body.name + " : plant not found")});
+			} else{
+				res.locals.lastid = Object.keys(plant.comments).length;
+				next();
 			}
 		});
+	}, function(req, res){ // async problem
 		var newComment = {
-			'id': 0,
+			'id': res.locals.lastid + 1,
 			'author': res.locals.author,
 			'content': req.body.content,
-			'date': Date.now(),
-			'like': 0
+//			'date': Date.now(),
+//			'like': 0
 		};
+		console.log(newComment)
 		Plant.findOneAndUpdate({name:req.body.name}, {$push:{comments:newComment}})
 		.exec(function(err, plant){
 			if(err){
