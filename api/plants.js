@@ -12,7 +12,7 @@ router.get('/',
 		var query = {};
 		if(req.query.name) query.name = {$regex:req.query.name, $options:'i'};
 		Plant.find(query)
-		.sort({이름: 1})
+		.sort({name: 1})
 		.exec(function(err, plants){
 			if(err){
 				res.status(500);
@@ -116,45 +116,37 @@ router.post('/comment',
 );
 
 router.post('/image',
-	function(req, res){
-		var path = "./images/" + req.body.name + ".";
-		var ext = "png";
-
-		fs.readFile(path+ext, function(err, image){
+	function(req, res, next){
+		Plant.findOne({name:req.body.name})
+		.exec(function(err, plant){
 			if(err){
-				res.json({message:err});
+				res.status(500);
+				return res.json({success:false, message:err});
+			} else{
+				res.locals.path = plant.image;
+				next();
 			}
-				//res.status(500);
-				//res.json({success:false, message:err});
+		});
+	}, function(req, res){
+		var path = res.locals.path;
+		var ext = (/[.]/.exec(path)) ? /[^.]+$/.exec(path) : undefined;	
+//		console.log("path : " + path);
+//		console.log("ext : " + ext);
+		if(ext != "jpg" & ext != "png"){
+			return res.json({success:false, message:"there's not 'png' or 'jpg' image file"});
+		};
+		fs.readFile(path, function(err, image){
+			if(err){
+				res.status(500);
+				return res.json({success:false, message:err});
+			}
 			else{
-				//res.json({success:true, data:image});
 				res.writeHead(500, {'Content_type': 'image/'+ext});
 				res.end(image);
 			}
-//			res.writeHead(200, {'Content-Type': 'image/png'});
-//			res.write(image);
-//			res.end();
-		});
-		fs.readFile(path+"jpg", function(err, image){
-			if(err){
-				res.status(500);
-				res.json({success:false, message:err});
-			} else{
-				res.writeHead(500, {'Content_type': 'image/jpg'});
-				res.end(image);
-			}
-		});
-});
-/*		fs.readFile(path, 'binary', function(err, image){
-			if(err){
-				res.status(500);
-				res.json({success:false, message:err});
-			} else{
-				res.json({success:true, data:image});
-			}
 		});
 	}
-	*/
+);
 
 // export
-module.exports = router;
+module.exports = router

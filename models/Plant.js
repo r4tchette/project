@@ -60,6 +60,13 @@ var plantSchema = mongoose.Schema({
 	}]
 });
 
+// default image path
+plantSchema.pre('save', function(next){
+	var plant = this;
+	plant.image = "/images/" + plant.name + ".png";
+	return next();
+});
+
 // model and export
 var Plant = mongoose.model('plant', plantSchema);
 module.exports = Plant;
