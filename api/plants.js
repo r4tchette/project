@@ -41,6 +41,22 @@ router.get('/:id',
 	}
 );
 
+// index using post
+router.post('/index',
+	function(req, res){
+		Plant.find({}, {name:1, image:1})
+		.sort({name:1})
+		.exec(function(err, plants){
+			if(err){
+				res.status(500);
+				return res.json({success:false, message:err});
+			} else{
+				return res.json({success:true, data:plants});
+			}
+		});
+	}
+);
+
 // search
 router.post('/search',
 	function(req, res, next){

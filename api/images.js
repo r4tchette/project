@@ -9,10 +9,11 @@ var fs = require('fs');
 
 // python shell option
 var options = {
-	mode: 'json',
+	mode: 'text',
+//	mode: 'json',
 	pythonPath: 'python3',
 	pythonOptions: ['-u'],
-	scriptPath: './py'
+	scriptPath: './py',
 };
 
 // run python shell
@@ -37,7 +38,7 @@ router.post('/search',
 // multer option
 var storage = multer.diskStorage({
 	destination: function(req, file, cb){
-		cb(null, './py/uploads/');
+		cb(null, './images/');
 	},
 	filename: function(req, file, cb){
 		var extension = path.extname(file.originalname);
@@ -62,7 +63,7 @@ router.post('/upload', upload.single('image'), function(req, res, next){
 // integration with flask server for image classification
 // send post request via multipart/form-data
 router.post('/request', upload.single('image'),
-	function(req, res, next){
+	function(req, res){
 		if(!req.file){
 			return res.json({success:false, message:"file is required"});
 		}
@@ -71,14 +72,41 @@ router.post('/request', upload.single('image'),
 			url:'http://localhost:5000/predict',
 			formData: formData
 		}, function(error, response, body){
+			fs.unlink(req.file.path, err=>{
+				if(err) throw err;
+				console.log("successfully deleted " + req.file.path);
+			});
 			if(error){
 				res.json({success:false, message: error});
 				return console.error('upload failed: ', error);
+			} else{
+//				console.log(fs.unlink(req.file.path));
+				var obj = JSON.parse(body);
+				return res.json({success:true, data: obj});
 			}
-//			console.log(response);
-			var obj = JSON.parse(body);
-			return res.json({success:true, data: obj});
 		});
+	}
+);
+
+router.post('/request2', upload.single('image'),
+	function(req, res){
+		if(!req.file){
+			return res.json({success:false, message:"file is required"});
+		}
+		console.log("options.args : " + options.args);
+		console.log("req.file.path : " + req.file.path);
+		options.args = req.file.path;
+		console.log("options.args : " + options.args);
+		PythonShell.run('main.py', options, function(err, results){
+			if(err) throw err;
+			console.log("results : " + results);
+			console.log(JSON.parse(results));
+			fs.unlink(req.file.path, (err)=>{
+				if(err) throw err;
+				console.log("successfully deleted " + req.file.path);
+			});
+			return res.json({success:true, data:JSON.parse(results)});
+		})
 	}
 );
 

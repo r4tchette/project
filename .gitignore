@@ -1,4 +1,8 @@
 node_modules
-py/uploads/*
 images/*
 *.swp
+*.h5
+*.orig
+
+models/Activity.js
+models/activityRecord.js
