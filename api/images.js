@@ -110,4 +110,24 @@ router.post('/request2', upload.single('image'),
 	}
 );
 
+router.post('/show',
+	function(req, res){
+		var path = "./images/" + req.body.path;
+		//console.log(path);
+		var ext = (/[.]/.exec(path)) ? /[^.]+$/.exec(path) : undefined;
+		if(ext != 'jpg' & ext != 'png'){
+			return res.json({success:false, message:"chekout the file's extentsion"});
+		};
+		fs.readFile(path, function(err, image){
+			if(err){
+				res.status(500);
+				return res.json({success:false, message:err});
+			} else{
+				res.writeHead(500, {'Content_type': 'image/'+ext});
+				res.end(image);
+			}
+		});
+	}
+);
+
 module.exports = router;
