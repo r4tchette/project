@@ -53,13 +53,20 @@ var plantSchema = mongoose.Schema({
 	},
 	comments: [{
 		id: {type: Number, default: 0},
-		user: {type:mongoose.Schema.Types.ObjectId, ref:"user", required:true},
+		author: {type:mongoose.Schema.Types.ObjectId, ref:"user", required:true},
 		content: String,
 		date: {type: Date, default: Date.now()},
 		like: {type: Number, default: 0}
 	}]
 });
 
+// default image path
+plantSchema.pre('save', function(next){
+	var plant = this;
+	plant.image = "/images/" + plant.name + ".png";
+	return next();
+});
+
 // model and export
-// var Plant = mongoose.model('plant', plantSchema);
-// module.exports = Plant;
+var Plant = mongoose.model('plant', plantSchema);
+module.exports = Plant;

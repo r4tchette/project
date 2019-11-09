@@ -2,7 +2,6 @@ require("dotenv").config();
 var express = require("express");
 var mongoose = require("mongoose");
 var bodyParser = require("body-parser");
-var passport = require('./config/passport');
 var app = express();
 
 // Database
@@ -18,10 +17,6 @@ db.once("open", function(){
 db.on("error", function(err){
 	console.log("Unable to connect to the mongodb server. Error : ", err);
 });
-
-// Passport
-app.use(passport.initialize());
-//app.use(passport.session());
 
 // Middlewares
 app.use(bodyParser.json());

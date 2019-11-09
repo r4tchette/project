@@ -10,18 +10,12 @@ var plantSchema = mongoose.Schema({
 			phylum: String,
 			class: String,
 			order: String,
-			family: String,
+			gamily: String,
 			genus: String,
 			species: String
 		},
-		flowering: {
-			start: Date,
-			end: Date
-		},
-		sowing: {
-			start: Date,
-			end: Date
-		},
+		flowering: String,
+		sowing: String,
 		habitat: [String]
 	},
 	requirement: {

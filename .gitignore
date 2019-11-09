@@ -4,5 +4,3 @@ images/*
 *.h5
 *.orig
 
-models/Activity.js
-models/activityRecord.js

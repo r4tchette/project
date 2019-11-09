@@ -3,7 +3,6 @@ var router = express.Router();
 var {check, validationResult} = require('express-validator');
 var User = require('../models/User');
 var mongoose = require('mongoose');
-var passport = require('../config/passport');
 
 // Index
 router.get('/', 
