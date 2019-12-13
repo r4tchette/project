@@ -44,13 +44,16 @@ router.get('/:id',
 // index using post
 router.post('/index',
 	function(req, res){
-		Plant.find({}, {name:1, image:1})
+		Plant.find({}, {id:1, name:1, image:1, information:1, requirement:1, guide:1, comments:1})
+		.populate('comments.author')
 		.sort({name:1})
 		.exec(function(err, plants){
 			if(err){
 				res.status(500);
+				console.log("식물DB 검색 도중 에러 발생");
 				return res.json({success:false, message:err});
 			} else{
+				console.log("DB에서 식물 정보 DB 조회하여 요청에 응답. DB 객체 수 : "+ plants.length);
 				return res.json({success:true, data:plants});
 			}
 		});
@@ -62,6 +65,7 @@ router.post('/search',
 	function(req, res, next){
 		if(!req.body.name) return res.json({success:false, message:"plant name is required"});
 		Plant.findOne({name:req.body.name})
+		.populate('comments.author')
 		.exec(function(err, plant){
 			if(err){
 				res.status(500);
@@ -75,7 +79,25 @@ router.post('/search',
 	}
 );
 
-// comment
+// search comment
+router.post('/searchcomment', function(req, res, next){
+	if(!req.body.name) return res.json({success:false, message:"plant name is required"});
+	Plant.findOne({name:req.body.name})
+	.populate('comments.author')
+	.exec(function(err, plant){
+		if(err){
+			res.status(500);
+			res.json({success:false, message:err});
+		} else if(!plant){
+			res.json({success:false, message:"plant not found"});
+		} else {
+			console.log(plant.name+" 의 후기 정보 조회");
+			res.json({success:true, data:plant.comments});
+		}
+	});}
+);
+
+// insert comment
 router.post('/comment',
 	function(req, res, next){
 		if(!req.body.name || !req.body.author || !req.body.content)
@@ -115,6 +137,7 @@ router.post('/comment',
 		Plant.findOneAndUpdate({name:req.body.name}, {$push:{comments:newComment}})
 		.exec(function(err, plant){
 			if(err){
+				console.log("후기 데이터 삽입 도중 에러 발생");
 				res.status(500);
 				return res.json({succcess:false, message:err});
 			}
@@ -122,11 +145,12 @@ router.post('/comment',
 		Plant.findOne({name:req.body.name})
 		.exec(function(err, plant){
 			if(err){
+				console.log("후기 데이터 삽입 후 해당 식물 db 객체 조회 중 에러 발생");
 				res.status(500);
 				return res.json({success:false, message:err});
 			} else{
 				return res.json({success:true, message:plant});
-			}
+			}		
 		});
 	}
 );
@@ -138,7 +162,11 @@ router.post('/image',
 			if(err){
 				res.status(500);
 				return res.json({success:false, message:err});
-			} else{
+			} else if(!plant){
+				res.status(200);
+				return res.json({success:false, message:"there is no plant named "+req.body.name}); 
+			}
+			else{
 				res.locals.path = plant.image;
 				next();
 			}
@@ -157,8 +185,8 @@ router.post('/image',
 				return res.json({success:false, message:err});
 			}
 			else{
-				res.writeHead(500, {'Content_type': 'image/'+ext});
-				res.end(image);
+				res.writeHead(200, {'Content_type': 'image/'+ext});
+				return res.end(image);
 			}
 		});
 	}

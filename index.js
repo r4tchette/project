@@ -28,13 +28,13 @@ app.use(function (req, res, next) {
 	next();
 });
 
-
 // API
 app.use('/api/users', require('./api/users'));
 app.use('/api/groups', require('./api/groups'));
 app.use('/api/posts', require('./api/posts'));
 app.use('/api/plants', require('./api/plants'));
 app.use('/api/images', require('./api/images'));
+app.use('/api/fs', require('./api/fs'));
 app.use('/api/activities', require('./api/activities')); //원예 활동 및 기록 관리 API. 구현 중
 
 // Port setting

@@ -12,7 +12,7 @@ label = ("Adiantum", "Alocasia macrorrhizos", "Ficus benjamina", "Hedra helix", 
 
 def approaching_model():
     global model
-    model = load_model('py/core_box.h5',  compile=False)
+    model = load_model('core_box.h5',  compile=False)
     global graph
     graph = tf.get_default_graph()
 

@@ -40,14 +40,14 @@ var plantSchema = mongoose.Schema({
 	guide: {
 		climate: String,
 		soil: String,
-		propagation: [String],
+		propagation: String,
 		water: String,
 		fertilizer: String,
-		disease: [String]
+		disease: String
 	},
 	comments: [{
 		id: {type: Number, default: 0},
-		author: {type:mongoose.Schema.Types.ObjectId, ref:"user", required:true},
+		author: {type:mongoose.Schema.Types.ObjectId, ref:'user', required:true},
 		content: String,
 		date: {type: Date, default: Date.now()},
 		like: {type: Number, default: 0}

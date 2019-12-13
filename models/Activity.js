@@ -16,8 +16,8 @@ var ActivitySchema = mongoose.Schema({
 	ended_at:String, // 활동 종료 일시
 	name_plant:String, // 식물명
 	id_manager:{ type:String, required:true }, // 팀장 id 
-	id_participants:String // 참가자 id
-	//image:{ data:Buffer, contentType:String },  // 활동 대표 이미지
+	id_participants:String, // 참가자 id
+	imgPath: { type:String, required: true }
 	//sensor:String // 실시간 탐지 센서
 });
 

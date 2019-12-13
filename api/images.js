@@ -38,7 +38,7 @@ router.post('/search',
 // multer option
 var storage = multer.diskStorage({
 	destination: function(req, file, cb){
-		cb(null, './images/');
+		cb(null, './images');
 	},
 	filename: function(req, file, cb){
 		var extension = path.extname(file.originalname);
@@ -47,10 +47,22 @@ var storage = multer.diskStorage({
 	}
 });
 
-var upload = multer({ storage: storage });
+var storage_activity = multer.diskStorage({
+	destination: function(req, file, cb){
+		cb(null, './images_ActivityRep');
+	},
+	filename: function(req, file, cb){
+		var extension = path.extname(file.originalname);
+		var basename = path.basename(file.originalname, extension);
+		cb(null, Date.now() + extension);
+	}
+});
 
-// image upload
-router.post('/upload', upload.single('image'), function(req, res, next){
+var upload = multer({ storage: storage });
+var upload_activity = multer({ storage: storage_activity });
+
+// image upload to ./images_ActivityRep
+router.post('/upload', upload_activity.single('image'), function(req, res, next){
 	var file = req.file;
 	//console.log(req.file);
 	if(!req.file){
@@ -81,7 +93,9 @@ router.post('/request', upload.single('image'),
 				return console.error('upload failed: ', error);
 			} else{
 //				console.log(fs.unlink(req.file.path));
+				console.log("이미지 검색 요청 처리");
 				var obj = JSON.parse(body);
+				console.log(obj);
 				return res.json({success:true, data: obj});
 			}
 		});
@@ -112,19 +126,22 @@ router.post('/request2', upload.single('image'),
 
 router.post('/show',
 	function(req, res){
-		var path = "./images/" + req.body.path;
+		var path = "./" + req.body.path;
 		//console.log(path);
 		var ext = (/[.]/.exec(path)) ? /[^.]+$/.exec(path) : undefined;
 		if(ext != 'jpg' & ext != 'png'){
+			console.log("checkout the file's extension");
 			return res.json({success:false, message:"chekout the file's extentsion"});
 		};
 		fs.readFile(path, function(err, image){
 			if(err){
 				res.status(500);
+				console.log(message.err);
 				return res.json({success:false, message:err});
 			} else{
-				res.writeHead(500, {'Content_type': 'image/'+ext});
+				res.writeHead(200, {'Content_type': 'image/'+ext});
 				res.end(image);
+				console.log(req.body.path+" 파일 전송 성공");
 			}
 		});
 	}

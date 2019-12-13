@@ -171,7 +171,8 @@ router.post('/register',
 			} else if(!user){
 				next();
 			} else{
-				return res.json({success:false, message:"email already registered"});
+				console.log("can't register user info: already registered ID");
+				return res.json({success:false, message:"ID already registered"});
 			}
 		});
 	}, function(req, res,next){
@@ -179,8 +180,10 @@ router.post('/register',
 		newUser.save(function(err, user){
 			if(err){
 				res.status(500);
+				console.log("회원 등록 처리 오류 "+err);
 				res.json({success:false, message:err});
 			} else{
+				console.log("회원 정보 DB에 회원 정보 저장");
 				res.json({success:true, data:user});
 			}
 		});
