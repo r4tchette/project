@@ -1,5 +1,7 @@
 node_modules
 images/*
+image*/
+py/
 *.swp
 *.h5
 *.orig
